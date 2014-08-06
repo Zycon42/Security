@@ -1,0 +1,22 @@
+{
+	"name": "zycon42/security",
+	"type": "library",
+	"description": "Security extension for Nette framework",
+	"keywords": [],
+	"licence": "MIT",
+	"authors": [
+		{
+			"name": "Jan Dušek",
+			"email": "jan.dusek90@gmail.com"
+		}
+	],
+	"require": {
+		"nette/security": "~2.2",
+		"nette/application": "~2.2",
+		"symfony/expression-language": "~2.5"
+	},
+	"autoload": {
+		"psr-0": { "Zycon42\\Security\\": "lib/" }
+	}
+}
+
