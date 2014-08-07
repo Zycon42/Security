@@ -2,9 +2,9 @@
 
 namespace Zycon42\Security\Authorization;
 
-use Zycon42\Security\Authorization\Voters\IVoter;
 use Nette\Object;
 use Nette\Security\IIdentity;
+use Zycon42\Security\Authorization\Voters\IVoter;
 
 class AccessDecisionManager extends Object implements IAccessDecisionManager {
 
@@ -26,7 +26,7 @@ class AccessDecisionManager extends Object implements IAccessDecisionManager {
         $this->allowIfEqualGrantedDenied = (bool)$allowIfEqualGrantedDenied;
 
         $strategyMethod = 'decide'.ucfirst($strategy);
-        if (!is_callable([$this, $strategyMethod]))
+        if (!method_exists($this, $strategyMethod))
             throw new \InvalidArgumentException(sprintf('Strategy "%s" is not supported.', $strategy));
 
         $this->strategy = $strategyMethod;
@@ -51,8 +51,11 @@ class AccessDecisionManager extends Object implements IAccessDecisionManager {
     /**
      * {@inheritdoc}
      */
-    public function supportsAttribute($attribute)
-    {
+    public function supportsAttribute($attribute) {
+        if (!$this->voters) {
+            throw new \InvalidArgumentException("No voters added.");
+        }
+
         foreach ($this->voters as $voter) {
             if ($voter->supportsAttribute($attribute))
                 return true;
@@ -63,8 +66,11 @@ class AccessDecisionManager extends Object implements IAccessDecisionManager {
     /**
      * {@inheritdoc}
      */
-    public function supportsClass($class)
-    {
+    public function supportsClass($class) {
+        if (!$this->voters) {
+            throw new \InvalidArgumentException("No voters added.");
+        }
+
         foreach ($this->voters as $voter) {
             if ($voter->supportsClass($class))
                 return true;
