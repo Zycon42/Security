@@ -10,7 +10,7 @@ class ExpressionLanguage extends BaseExpressionLanguage {
         parent::registerFunctions();
 
         $this->register('isAnonymous', function () {
-            return '$trustResolver->isGuest($token)';
+            return '$trustResolver->isGuest($identity)';
         }, function (array $variables) {
             return $variables['trustResolver']->isGuest($variables['identity']);
         });
@@ -29,7 +29,7 @@ class ExpressionLanguage extends BaseExpressionLanguage {
 
         $this->register('hasPermission', function ($object, $attributes) {
             return sprintf('$securityContext && $securityContext->isGranted(%s, %s)', $attributes, $object);
-        }, function (array $variables, $attributes, $object = null) {
+        }, function (array $variables, $object, $attributes) {
             return $variables['securityContext'] && $variables['securityContext']->isGranted($attributes, $object);
         });
     }
