@@ -2,6 +2,8 @@
 
 namespace Zycon42\Security\Tests\Authorization\Voters;
 
+use Nette\Security\IIdentity;
+use Nette\Security\IRole;
 use Zycon42\Security\Authorization\Voters\IVoter;
 use Zycon42\Security\Authorization\Voters\RoleVoter;
 
@@ -33,12 +35,12 @@ class RoleVoterTest extends \PHPUnit_Framework_TestCase {
     }
 
     public function testSupportsAttribute_instanceOfIRoleGiven_returnTrue() {
-        $role = \Mockery::mock('Nette\Security\IRole');
+        $role = \Mockery::mock(IRole::class);
         $this->assertTrue($this->voter->supportsAttribute($role));
     }
 
     public function testVote_badAttributesGiven_abstain() {
-        $identity = \Mockery::mock('Nette\Security\IIdentity');
+        $identity = \Mockery::mock(IIdentity::class);
 
         $vote = $this->voter->vote($identity, ['admin', null], null);
 
@@ -46,7 +48,7 @@ class RoleVoterTest extends \PHPUnit_Framework_TestCase {
     }
 
     public function testVote_identityHasSuitableRole_grant() {
-        $identity = \Mockery::mock('Nette\Security\IIdentity')
+        $identity = \Mockery::mock(IIdentity::class)
             ->shouldReceive('getRoles')->andReturn(['ADMIN', 'CLIENT'])
             ->getMock();
 
@@ -56,7 +58,7 @@ class RoleVoterTest extends \PHPUnit_Framework_TestCase {
     }
 
     public function testVote_identityNoSuitableRole_deny() {
-        $identity = \Mockery::mock('Nette\Security\IIdentity')
+        $identity = \Mockery::mock(IIdentity::class)
             ->shouldReceive('getRoles')->andReturn(['CLIENT'])
             ->getMock();
 
@@ -66,7 +68,7 @@ class RoleVoterTest extends \PHPUnit_Framework_TestCase {
     }
 
     public function testVote_usingIRole_noThrow() {
-        $identity = \Mockery::mock('Nette\Security\IIdentity')
+        $identity = \Mockery::mock(IIdentity::class)
             ->shouldReceive('getRoles')->andReturn([$this->createRole('CLIENT')])
             ->getMock();
 
@@ -78,7 +80,7 @@ class RoleVoterTest extends \PHPUnit_Framework_TestCase {
     }
 
     private function createRole($role) {
-        return \Mockery::mock('Nette\Security\IRole')
+        return \Mockery::mock(IRole::class)
             ->shouldReceive('getRoleId')->andReturn($role)
             ->getMock();
     }

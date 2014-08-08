@@ -3,6 +3,7 @@
 namespace Zycon42\Security\Tests\Authorization;
 
 
+use Nette\Security\IIdentity;
 use Zycon42\Security\Authorization\AccessDecisionManager;
 use Zycon42\Security\Authorization\Voters\IVoter;
 
@@ -13,18 +14,18 @@ class AccessDecisionManagerTest extends \PHPUnit_Framework_TestCase {
     }
 
     private function getMockIdentity() {
-        return \Mockery::mock('Nette\Security\IIdentity');
+        return \Mockery::mock(IIdentity::class);
     }
 
     private function getMockVoter() {
-        return \Mockery::mock('Zycon42\Security\Authorization\Voters\IVoter');
+        return \Mockery::mock(IVoter::class);
     }
 
     /**
      * @expectedException \InvalidArgumentException
      */
     public function testConstruct_invalidStrategy_throws() {
-        $manager = new AccessDecisionManager('foo');
+        new AccessDecisionManager('foo');
     }
 
     /**
@@ -33,7 +34,7 @@ class AccessDecisionManagerTest extends \PHPUnit_Framework_TestCase {
     public function testSupportsAttribute_noVoters_throws() {
         $manager = new AccessDecisionManager();
 
-        $result = $manager->supportsAttribute('foo');
+        $manager->supportsAttribute('foo');
     }
 
     public function testSupportsAttribute_allVotersDoesNotSupport_returnsFalse() {
@@ -74,7 +75,7 @@ class AccessDecisionManagerTest extends \PHPUnit_Framework_TestCase {
     public function testSupportsClass_noVoters_throws() {
         $manager = new AccessDecisionManager();
 
-        $result = $manager->supportsClass('foo');
+        $manager->supportsClass('foo');
     }
 
     public function testSupportsClass_allVotersDoesNotSupport_returnsFalse() {
