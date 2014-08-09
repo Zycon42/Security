@@ -9,14 +9,10 @@ use Zycon42\Security\SecurityContext;
 
 class SecurityContextTest extends \PHPUnit_Framework_TestCase {
 
-    /**
-     * @var SecurityContext
-     */
+    /** @var SecurityContext */
     private $securityContext;
 
-    /**
-     * @var \Mockery\MockInterface
-     */
+    /** @var \Mockery\MockInterface */
     private $accessDecisionManager;
 
     protected function setUp() {

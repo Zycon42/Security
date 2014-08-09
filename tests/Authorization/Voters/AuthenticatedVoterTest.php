@@ -9,14 +9,10 @@ use Zycon42\Security\Authorization\Voters\IVoter;
 
 class AuthenticatedVoterTest extends \PHPUnit_Framework_TestCase {
 
-    /**
-     * @var AuthenticatedVoter
-     */
+    /** @var AuthenticatedVoter */
     private $voter;
 
-    /**
-     * @var \Mockery\MockInterface
-     */
+    /** @var \Mockery\MockInterface */
     private $trustResolver;
 
     protected function setUp() {
