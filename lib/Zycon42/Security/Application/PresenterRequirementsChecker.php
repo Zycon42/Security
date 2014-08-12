@@ -25,18 +25,19 @@ class PresenterRequirementsChecker extends Nette\Object {
      * @param ClassType|Method $element
      * @param Request $request
      * @return bool
+     * @throws \InvalidArgumentException
      */
     public function checkRequirement($element, Request $request) {
-        $expressions = [];
         if ($element instanceof ClassType) {
             $expressions = $this->getClassExpressionsToEvaluate($element);
         } else if ($element instanceof Method) {
             $expressions = $this->getMethodExpressionsToEvaluate($element);
-        }
+        } else
+            throw new \InvalidArgumentException("Argument 'element' must be instanceof Nette\\Reflection\\ClassType or Nette\\Reflection\\Method");
 
         if (!empty($expressions)) {
             foreach ($expressions as $expression) {
-                $result = $this->expressionEvaluator->evaluateExpression($expression, $request);
+                $result = $this->expressionEvaluator->evaluate($expression, $request);
                 if (!$result) {
                     $this->failedExpression = $expression;
                     return false;
@@ -77,7 +78,7 @@ class PresenterRequirementsChecker extends Nette\Object {
             if (!is_string($annotation)) {
                 throw new \InvalidArgumentException('Security annotation must be simple string with expression.');
             }
-            return [$annotation];
+            return [new Expression($annotation)];
         }
         return [];
     }

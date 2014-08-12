@@ -2,28 +2,22 @@
 
 namespace Zycon42\Security\Application;
 
+use Nette;
 use Nette\Application\Request;
 use Nette\Security\IRole;
-use Nette;
 use Symfony\Component\ExpressionLanguage\Expression;
 use Zycon42\Security\Authorization\ExpressionLanguage;
 use Zycon42\Security\ISecurityContext;
 
 class ExpressionEvaluator extends Nette\Object {
 
-    /**
-     * @var ISecurityContext
-     */
+    /** @var ISecurityContext */
     private $securityContext;
 
-    /**
-     * @var ExpressionLanguage
-     */
+    /** @var ExpressionLanguage */
     private $language;
 
-    /**
-     * @var Nette\Security\User
-     */
+    /** @var Nette\Security\User */
     private $user;
 
     public function __construct(ISecurityContext $securityContext, Nette\Security\User $user,
@@ -34,7 +28,7 @@ class ExpressionEvaluator extends Nette\Object {
         $this->language = $language;
     }
 
-    public function evaluateExpression(Expression $expression, Request $request) {
+    public function evaluate(Expression $expression, Request $request) {
         return $this->language->evaluate($expression, $this->getVariables($request));
     }
 
