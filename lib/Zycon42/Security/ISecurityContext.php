@@ -2,9 +2,6 @@
 
 namespace Zycon42\Security;
 
-
-use Nette\Security\IIdentity;
-
 interface ISecurityContext {
 
     /**
@@ -14,16 +11,4 @@ interface ISecurityContext {
      * @return bool
      */
     public function isGranted($attributes, $object = null);
-
-    /**
-     * Sets identity for security context to work with
-     * @param IIdentity $identity
-     */
-    public function setIdentity(IIdentity $identity = null);
-
-    /**
-     * Gets associated identity
-     * @return IIdentity|null
-     */
-    public function getIdentity();
 }

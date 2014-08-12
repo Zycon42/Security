@@ -2,13 +2,12 @@
 
 namespace Zycon42\Security\Application;
 
-use Zycon42\Security\Authentication\IAuthenticationTrustResolver;
-use Zycon42\Security\Authorization\ExpressionLanguage;
-use Zycon42\Security\ISecurityContext;
-use Nette;
 use Nette\Application\Request;
 use Nette\Security\IRole;
+use Nette;
 use Symfony\Component\ExpressionLanguage\Expression;
+use Zycon42\Security\Authorization\ExpressionLanguage;
+use Zycon42\Security\ISecurityContext;
 
 class ExpressionEvaluator extends Nette\Object {
 
@@ -27,16 +26,10 @@ class ExpressionEvaluator extends Nette\Object {
      */
     private $user;
 
-    /**
-     * @var IAuthenticationTrustResolver
-     */
-    private $trustResolver;
-
-    public function __construct(ISecurityContext $securityContext, IAuthenticationTrustResolver $trustResolver,
-                                Nette\Security\User $user, ExpressionLanguage $language) {
+    public function __construct(ISecurityContext $securityContext, Nette\Security\User $user,
+                                ExpressionLanguage $language) {
 
         $this->securityContext = $securityContext;
-        $this->trustResolver = $trustResolver;
         $this->user = $user;
         $this->language = $language;
     }
@@ -52,7 +45,6 @@ class ExpressionEvaluator extends Nette\Object {
             'object' => $request,
             'roles' => array_map(function ($role) { return $role instanceof IRole ? $role->getRoleId() : $role; },
                 $this->user->getRoles()),
-            'trustResolver' => $this->trustResolver,
             'securityContext' => $this->securityContext
         ];
 

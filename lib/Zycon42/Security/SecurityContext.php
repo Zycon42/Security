@@ -2,10 +2,10 @@
 
 namespace Zycon42\Security;
 
+use Nette\Object;
+use Nette\Security\User;
 use Zycon42\Security\Authentication\GuestIdentity;
 use Zycon42\Security\Authorization\IAccessDecisionManager;
-use Nette\Object;
-use Nette\Security\IIdentity;
 
 class SecurityContext extends Object implements ISecurityContext {
 
@@ -15,12 +15,13 @@ class SecurityContext extends Object implements ISecurityContext {
     private $decisionManager;
 
     /**
-     * @var IIdentity
+     * @var User
      */
-    private $identity;
+    private $user;
 
-    public function __construct(IAccessDecisionManager $decisionManager) {
+    public function __construct(IAccessDecisionManager $decisionManager, User $user) {
         $this->decisionManager = $decisionManager;
+        $this->user = $user;
     }
 
     /**
@@ -30,23 +31,11 @@ class SecurityContext extends Object implements ISecurityContext {
         if (!is_array($attributes))
             $attributes = array($attributes);
 
-        return $this->decisionManager->decide($this->identity, $attributes, $object);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setIdentity(IIdentity $identity = null) {
+        $identity = $this->user->getIdentity();
         if ($identity === null) {
             $identity = new GuestIdentity();
         }
-        $this->identity = $identity;
-    }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getIdentity() {
-        return $this->identity;
+        return $this->decisionManager->decide($identity, $attributes, $object);
     }
 }

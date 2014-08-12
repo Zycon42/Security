@@ -3,34 +3,23 @@
 namespace Zycon42\Security\Authorization\Voters;
 
 
-use Zycon42\Security\Authentication\IAuthenticationTrustResolver;
-use Zycon42\Security\Authorization\ExpressionLanguage;
 use Nette\Object;
 use Nette\Security\IIdentity;
 use Nette\Security\IRole;
 use Nette\Security\User;
 use Symfony\Component\ExpressionLanguage\Expression;
+use Zycon42\Security\Authorization\ExpressionLanguage;
 
 class ExpressionVoter extends Object implements IVoter {
 
-    /**
-     * @var ExpressionLanguage
-     */
+    /** @var ExpressionLanguage */
     private $language;
 
-    /**
-     * @var IAuthenticationTrustResolver
-     */
-    private $trustResolver;
-
-    /**
-     * @var User
-     */
+    /** @var User */
     private $user;
 
-    public function __construct(ExpressionLanguage $language, IAuthenticationTrustResolver $trustResolver, User $user) {
+    public function __construct(ExpressionLanguage $language, User $user) {
         $this->language = $language;
-        $this->trustResolver = $trustResolver;
         $this->user = $user;
     }
 
@@ -78,8 +67,7 @@ class ExpressionVoter extends Object implements IVoter {
             'user' => $this->user,
             'object' => $object,
             'roles' => array_map(function ($role) { return $role instanceof IRole ? $role->getRoleId() : $role; },
-                $identity->getRoles()),
-            'trustResolver' => $this->trustResolver
+                $identity->getRoles())
         ];
     }
 }

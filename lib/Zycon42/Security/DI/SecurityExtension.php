@@ -1,8 +1,8 @@
 <?php
 namespace Zycon42\Security\DI;
 
-use Zycon42\Security\Authorization\AccessDecisionManager;
 use Nette\DI\CompilerExtension;
+use Zycon42\Security\Authorization\AccessDecisionManager;
 
 class SecurityExtension extends CompilerExtension {
 
@@ -33,11 +33,6 @@ class SecurityExtension extends CompilerExtension {
             ->setClass('Zycon42\Security\Authorization\ExpressionLanguage')
             ->setInject(FALSE);
 
-        $builder->addDefinition($this->prefix('trustResolver'))
-            ->setImplementType('Zycon42\Security\Authentication\IAuthenticationTrustResolver')
-            ->setClass('Zycon42\Security\Authentication\AuthenticationTrustResolver')
-            ->setInject(FALSE);
-
         $builder->addDefinition($this->prefix('decisionManager'))
             ->setImplementType('Zycon42\Security\Authorization\IAccessDecisionManager')
             ->setClass('Zycon42\Security\Authorization\AccessDecisionManager', $config['decisionManager'])
@@ -46,7 +41,6 @@ class SecurityExtension extends CompilerExtension {
         $builder->addDefinition($this->prefix('securityContext'))
             ->setImplementType('Zycon42\Security\ISecurityContext')
             ->setClass('Zycon42\Security\SecurityContext')
-            ->addSetup('$service->setIdentity(?->identity)', ['@user'])
             ->setInject(FALSE);
 
         $builder->addDefinition($this->prefix('expressionEvaluator'))

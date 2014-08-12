@@ -14,19 +14,19 @@ class ExpressionLanguageTest extends \PHPUnit_Framework_TestCase {
         $language = new ExpressionLanguage();
         $compiled = $language->compile('isAnonymous()');
 
-        $this->assertEquals('$trustResolver->isGuest($identity)', $compiled);
+        $this->assertEquals('!$user->isLoggedIn()', $compiled);
     }
 
     public function testEvaluate_isAnonymous_correctResult() {
         $identity = new \stdClass();
-        $trustResolver = \Mockery::mock()
-            ->shouldReceive('isGuest')->with($identity)->andReturn(true)->once()
+        $user = \Mockery::mock()
+            ->shouldReceive('isLoggedIn')->andReturn(false)->once()
             ->getMock();
 
         $language = new ExpressionLanguage();
         $evaluated = $language->evaluate('isAnonymous()', [
             'identity' => $identity,
-            'trustResolver' => $trustResolver
+            'user' => $user
         ]);
 
         $this->assertTrue($evaluated);
@@ -36,19 +36,19 @@ class ExpressionLanguageTest extends \PHPUnit_Framework_TestCase {
         $language = new ExpressionLanguage();
         $compiled = $language->compile('isAuthenticated()');
 
-        $this->assertEquals('$trustResolver->isAuthenticated($identity)', $compiled);
+        $this->assertEquals('$user->isLoggedIn()', $compiled);
     }
 
     public function testEvaluate_isAuthenticated_correctResult() {
         $identity = new \stdClass();
-        $trustResolver = \Mockery::mock()
-            ->shouldReceive('isAuthenticated')->with($identity)->andReturn(true)->once()
+        $user = \Mockery::mock()
+            ->shouldReceive('isLoggedIn')->andReturn(true)->once()
             ->getMock();
 
         $language = new ExpressionLanguage();
         $evaluated = $language->evaluate('isAuthenticated()', [
             'identity' => $identity,
-            'trustResolver' => $trustResolver
+            'user' => $user
         ]);
 
         $this->assertTrue($evaluated);

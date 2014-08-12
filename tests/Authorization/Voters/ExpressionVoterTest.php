@@ -2,11 +2,12 @@
 
 namespace Zycon42\Security\Tests\Authorization\Voters;
 
+use Nette\Security\IIdentity;
 use Nette\Security\User;
 use Symfony\Component\ExpressionLanguage\Expression;
-use Zycon42\Security\Authentication\IAuthenticationTrustResolver;
 use Zycon42\Security\Authorization\ExpressionLanguage;
 use Zycon42\Security\Authorization\Voters\ExpressionVoter;
+use Zycon42\Security\Authorization\Voters\IVoter;
 
 class ExpressionVoterTest extends \PHPUnit_Framework_TestCase {
 
@@ -17,17 +18,18 @@ class ExpressionVoterTest extends \PHPUnit_Framework_TestCase {
     private $expressionLanguage;
 
     /** @var \Mockery\MockInterface */
-    private $trustResolver;
-
-    /** @var \Mockery\MockInterface */
     private $user;
+
+    private $identity;
 
     protected function setUp() {
         $this->expressionLanguage = \Mockery::mock(ExpressionLanguage::class);
-        $this->trustResolver = \Mockery::mock(IAuthenticationTrustResolver::class);
         $this->user = \Mockery::mock(User::class);
 
-        $this->voter = new ExpressionVoter($this->expressionLanguage, $this->trustResolver, $this->user);
+        $this->voter = new ExpressionVoter($this->expressionLanguage, $this->user);
+
+        $this->identity = \Mockery::mock(IIdentity::class)->shouldReceive('getRoles')
+            ->andReturn(['test'])->byDefault()->getMock();
     }
 
     protected function tearDown() {
@@ -45,5 +47,46 @@ class ExpressionVoterTest extends \PHPUnit_Framework_TestCase {
 
     public function testSupportsAttribute_notExpressionGiven_returnsFalse() {
         $this->assertFalse($this->voter->supportsAttribute('foo'));
+    }
+
+    public function testVote_badAttribute_abstain() {
+        $vote = $this->voter->vote($this->identity, ['ROLE_ADMIN'], null);
+
+        $this->assertEquals(IVoter::VOTE_ABSTAIN, $vote);
+    }
+
+    public function testVote_expressionAsAttribute_languageEvaluateCalled() {
+        $expr = \Mockery::mock(Expression::class);
+
+        $object = new \stdClass();
+        $this->expressionLanguage->shouldReceive('evaluate')
+            ->with($expr, [
+                'identity' => $this->identity,
+                'user' => $this->user,
+                'object' => $object,
+                'roles' => ['test']
+            ])->once();
+
+        $this->voter->vote($this->identity, [$expr], $object);
+    }
+
+    public function testVote_expressionReturnsTrue_grant() {
+        $expr = \Mockery::mock(Expression::class);
+
+        $this->expressionLanguage->shouldReceive('evaluate')->andReturn(true);
+
+        $vote = $this->voter->vote($this->identity, [$expr], null);
+
+        $this->assertEquals(IVoter::VOTE_GRANTED, $vote);
+    }
+
+    public function testVote_expressionReturnsFalse_deny() {
+        $expr = \Mockery::mock(Expression::class);
+
+        $this->expressionLanguage->shouldReceive('evaluate')->andReturn(false);
+
+        $vote = $this->voter->vote($this->identity, [$expr], null);
+
+        $this->assertEquals(IVoter::VOTE_DENIED, $vote);
     }
 }

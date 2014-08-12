@@ -10,15 +10,15 @@ class ExpressionLanguage extends BaseExpressionLanguage {
         parent::registerFunctions();
 
         $this->register('isAnonymous', function () {
-            return '$trustResolver->isGuest($identity)';
+            return '!$user->isLoggedIn()';
         }, function (array $variables) {
-            return $variables['trustResolver']->isGuest($variables['identity']);
+            return !$variables['user']->isLoggedIn();
         });
 
         $this->register('isAuthenticated', function () {
-            return '$trustResolver->isAuthenticated($identity)';
+            return '$user->isLoggedIn()';
         }, function (array $variables) {
-            return $variables['trustResolver']->isAuthenticated($variables['identity']);
+            return $variables['user']->isLoggedIn();
         });
 
         $this->register('hasRole', function ($role) {

@@ -3,7 +3,7 @@
 namespace Zycon42\Security\Tests\Authorization\Voters;
 
 use Nette\Security\IIdentity;
-use Zycon42\Security\Authentication\IAuthenticationTrustResolver;
+use Nette\Security\User;
 use Zycon42\Security\Authorization\Voters\AuthenticatedVoter;
 use Zycon42\Security\Authorization\Voters\IVoter;
 
@@ -13,11 +13,11 @@ class AuthenticatedVoterTest extends \PHPUnit_Framework_TestCase {
     private $voter;
 
     /** @var \Mockery\MockInterface */
-    private $trustResolver;
+    private $user;
 
     protected function setUp() {
-        $this->trustResolver = \Mockery::mock(IAuthenticationTrustResolver::class);
-        $this->voter = new AuthenticatedVoter($this->trustResolver);
+        $this->user = \Mockery::mock(User::class);
+        $this->voter = new AuthenticatedVoter($this->user);
     }
 
     protected function tearDown() {
@@ -54,52 +54,50 @@ class AuthenticatedVoterTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals(IVoter::VOTE_ABSTAIN, $result);
     }
 
-    public function testVote_isAnonymous_trustResolverCalled() {
+    public function testVote_isAnonymous_userCalled() {
         $identity = \Mockery::mock(IIdentity::class);
-        $this->trustResolver->shouldReceive('isGuest')->with($identity)
-            ->andReturn(true)->once();
+        $this->user->shouldReceive('isLoggedIn')->andReturn(false)->once();
 
         $this->voter->vote($identity, [ AuthenticatedVoter::IS_ANONYMOUS ], null);
     }
 
-    public function testVote_isAnonymousAndTrustResolverReturnsTrue_granted() {
+    public function testVote_isAnonymousAndUserNotLoggedIn_granted() {
         $identity = \Mockery::mock(IIdentity::class);
-        $this->trustResolver->shouldReceive('isGuest')->andReturn(true);
+        $this->user->shouldReceive('isLoggedIn')->andReturn(false);
 
         $result = $this->voter->vote($identity, [ AuthenticatedVoter::IS_ANONYMOUS ], null);
 
         $this->assertEquals(IVoter::VOTE_GRANTED, $result);
     }
 
-    public function testVote_isAnonymousAndTrustResolverReturnsFalse_denied() {
+    public function testVote_isAnonymousAndUserIsLoggedIn_denied() {
         $identity = \Mockery::mock(IIdentity::class);
-        $this->trustResolver->shouldReceive('isGuest')->andReturn(false);
+        $this->user->shouldReceive('isLoggedIn')->andReturn(true);
 
         $result = $this->voter->vote($identity, [ AuthenticatedVoter::IS_ANONYMOUS ], null);
 
         $this->assertEquals(IVoter::VOTE_DENIED, $result);
     }
 
-    public function testVote_isAuthenticated_trustResolverCalled() {
+    public function testVote_isAuthenticated_userCalled() {
         $identity = \Mockery::mock(IIdentity::class);
-        $this->trustResolver->shouldReceive('isAuthenticated')->with($identity)
-            ->andReturn(true)->once();
+        $this->user->shouldReceive('isLoggedIn')->andReturn(true)->once();
 
         $this->voter->vote($identity, [ AuthenticatedVoter::IS_AUTHENTICATED ], null);
     }
 
-    public function testVote_isAuthenticatedAndTrustResolverReturnsTrue_granted() {
+    public function testVote_isAuthenticatedAndUserIsLoggedIn_granted() {
         $identity = \Mockery::mock(IIdentity::class);
-        $this->trustResolver->shouldReceive('isAuthenticated')->andReturn(true);
+        $this->user->shouldReceive('isLoggedIn')->andReturn(true);
 
         $result = $this->voter->vote($identity, [ AuthenticatedVoter::IS_AUTHENTICATED ], null);
 
         $this->assertEquals(IVoter::VOTE_GRANTED, $result);
     }
 
-    public function testVote_isAuthenticatedAndTrustResolverReturnsFalse_denied() {
+    public function testVote_isAuthenticatedAndUserNotLoggedIn_denied() {
         $identity = \Mockery::mock(IIdentity::class);
-        $this->trustResolver->shouldReceive('isAuthenticated')->andReturn(false);
+        $this->user->shouldReceive('isLoggedIn')->andReturn(false);
 
         $result = $this->voter->vote($identity, [ AuthenticatedVoter::IS_AUTHENTICATED ], null);
 

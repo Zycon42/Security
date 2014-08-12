@@ -3,6 +3,7 @@
 namespace Zycon42\Security\Tests;
 
 use Nette\Security\IIdentity;
+use Nette\Security\User;
 use Zycon42\Security\Authentication\GuestIdentity;
 use Zycon42\Security\Authorization\IAccessDecisionManager;
 use Zycon42\Security\SecurityContext;
@@ -15,36 +16,32 @@ class SecurityContextTest extends \PHPUnit_Framework_TestCase {
     /** @var \Mockery\MockInterface */
     private $accessDecisionManager;
 
+    /** @var \Mockery\MockInterface */
+    private $user;
+
     protected function setUp() {
         $this->accessDecisionManager = \Mockery::mock(IAccessDecisionManager::class);
-        $this->securityContext = new SecurityContext($this->accessDecisionManager);
+        $this->user = \Mockery::mock(User::class);
+        $this->securityContext = new SecurityContext($this->accessDecisionManager, $this->user);
     }
 
     protected function tearDown() {
         \Mockery::close();
     }
 
-    public function testGetIdentity_identityNotSet_returnsNull() {
-        $this->assertEquals(null, $this->securityContext->getIdentity());
-    }
+    public function testIsGranted_userHasNullIdentity_GuestIdentityPassedToAccessDecisionManager() {
+        $this->user->shouldReceive('getIdentity')->andReturn(null);
 
-    public function testGetIdentity_identitySetToNull_returnsGuestIdentity() {
-        $this->securityContext->setIdentity(null);
+        $this->accessDecisionManager->shouldReceive('decide')
+            ->with(\Mockery::type(GuestIdentity::class), \Mockery::any(), \Mockery::any())
+            ->once();
 
-        $this->assertInstanceOf(GuestIdentity::class,
-            $this->securityContext->getIdentity());
-    }
-
-    public function testGetIdentity_identitySet_returnsSameIdentity() {
-        $identity = \Mockery::mock(IIdentity::class);
-        $this->securityContext->setIdentity($identity);
-
-        $this->assertSame($identity, $this->securityContext->getIdentity());
+        $this->securityContext->isGranted('SHOW');
     }
 
     public function testIsGranted_attributesIsArray_paramsPassedToDecisionManager() {
         $identity = \Mockery::mock(IIdentity::class);
-        $this->securityContext->setIdentity($identity);
+        $this->user->shouldReceive('getIdentity')->andReturn($identity);
 
         $attributes = ['SHOW', 'EDIT'];
         $object = new \stdClass();
@@ -57,7 +54,7 @@ class SecurityContextTest extends \PHPUnit_Framework_TestCase {
 
     public function testIsGranted_attributesIsNotArray_attributesConvertedToArray() {
         $identity = \Mockery::mock(IIdentity::class);
-        $this->securityContext->setIdentity($identity);
+        $this->user->shouldReceive('getIdentity')->andReturn($identity);
 
         $this->accessDecisionManager->shouldReceive('decide')
             ->with($identity, ['SHOW'], null)->once();
@@ -67,7 +64,7 @@ class SecurityContextTest extends \PHPUnit_Framework_TestCase {
 
     public function testIsGranted_accessDecisionResult_returned() {
         $identity = \Mockery::mock(IIdentity::class);
-        $this->securityContext->setIdentity($identity);
+        $this->user->shouldReceive('getIdentity')->andReturn($identity);
 
         $this->accessDecisionManager->shouldReceive('decide')
             ->withAnyArgs()->andReturn(true)->once();

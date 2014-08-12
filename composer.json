@@ -16,7 +16,7 @@
 		"symfony/expression-language": "~2.5"
 	},
     "require-dev": {
-        "php/php": "5.5",
+        "php": ">= 5.5",
         "phpunit/phpunit": "4.1.*",
         "mockery/mockery": "@stable"
     },

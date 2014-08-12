@@ -3,9 +3,9 @@
 namespace Zycon42\Security\Authorization\Voters;
 
 
-use Zycon42\Security\Authentication\IAuthenticationTrustResolver;
 use Nette\Object;
 use Nette\Security\IIdentity;
+use Nette\Security\User;
 
 /**
  * Voter that checks if identity is authenticated or anonymous.
@@ -16,12 +16,12 @@ class AuthenticatedVoter extends Object implements IVoter {
     const IS_ANONYMOUS = 'IS_ANONYMOUS';
 
     /**
-     * @var IAuthenticationTrustResolver
+     * @var User
      */
-    private $authenticationTrustResolver;
+    private $user;
 
-    public function __construct(IAuthenticationTrustResolver $authenticationTrustResolver) {
-        $this->authenticationTrustResolver = $authenticationTrustResolver;
+    public function __construct(User $user) {
+        $this->user = $user;
     }
 
     /**
@@ -51,9 +51,9 @@ class AuthenticatedVoter extends Object implements IVoter {
                 continue;
 
             $result = self::VOTE_DENIED;
-            if ($attribute === self::IS_ANONYMOUS && $this->authenticationTrustResolver->isGuest($identity))
+            if ($attribute === self::IS_ANONYMOUS && !$this->user->isLoggedIn())
                 return self::VOTE_GRANTED;
-            if ($attribute === self::IS_AUTHENTICATED && $this->authenticationTrustResolver->isAuthenticated($identity))
+            if ($attribute === self::IS_AUTHENTICATED && $this->user->isLoggedIn())
                 return self::VOTE_GRANTED;
         }
 
