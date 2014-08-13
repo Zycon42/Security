@@ -11,6 +11,7 @@
 		}
 	],
 	"require": {
+        "php" : ">= 5.4",
 		"nette/security": "~2.2",
 		"nette/application": "~2.2",
 		"symfony/expression-language": "~2.5"

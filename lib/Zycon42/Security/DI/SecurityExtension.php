@@ -11,7 +11,7 @@ class SecurityExtension extends CompilerExtension {
     const VOTER_EXPRESSION = 'expression';
     const VOTER_AUTHENTICATED = 'authenticated';
 
-    const TAG_VOTER = 'mevris.voter';
+    const TAG_VOTER = 'security.voter';
 
     public $defaults = [
         'decisionManager' => [
@@ -35,6 +35,9 @@ class SecurityExtension extends CompilerExtension {
             ->setClass('Zycon42\Security\Authorization\ExpressionLanguage')
             ->setInject(FALSE);
 
+        Validators::assertField($config['decisionManager'], 'strategy', 'string');
+        Validators::assertField($config['decisionManager'], 'allowIfAllAbstain', 'bool');
+        Validators::assertField($config['decisionManager'], 'allowIfEqualGrantedDenied', 'bool');
         $builder->addDefinition($this->prefix('decisionManager'))
             ->setImplementType('Zycon42\Security\Authorization\IAccessDecisionManager')
             ->setClass('Zycon42\Security\Authorization\AccessDecisionManager', $config['decisionManager'])
@@ -57,6 +60,12 @@ class SecurityExtension extends CompilerExtension {
         if ($config['roleHierarchy'] != FALSE) {
             Validators::assert($config['roleHierarchy'], 'array');
             $roleHierarchyUsed = true;
+
+            // When there's string in roleHierarchy value convert it to array
+            foreach ($config['roleHierarchy'] as $main => $roles) {
+                if (!is_array($roles))
+                    $config['roleHierarchy'][$main] = [$roles];
+            }
 
             $builder->addDefinition($this->prefix('roleHierarchy'))
                 ->setImplementType('Zycon42\Security\Role\IRoleHierarchy')
