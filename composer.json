@@ -18,7 +18,8 @@
     "require-dev": {
         "php": ">= 5.5",
         "phpunit/phpunit": "4.1.*",
-        "mockery/mockery": "@stable"
+        "mockery/mockery": "@stable",
+        "jakub-onderka/php-parallel-lint": "~0.7"
     },
 	"autoload": {
 		"psr-0": { "Zycon42\\Security\\": "lib/" }
