@@ -2,6 +2,7 @@
 namespace Zycon42\Security\DI;
 
 use Nette\DI\CompilerExtension;
+use Nette\Utils\Validators;
 use Zycon42\Security\Authorization\AccessDecisionManager;
 
 class SecurityExtension extends CompilerExtension {
@@ -22,7 +23,8 @@ class SecurityExtension extends CompilerExtension {
             self::VOTER_ROLE => TRUE,
             self::VOTER_EXPRESSION => TRUE,
             self::VOTER_AUTHENTICATED => TRUE
-        ]
+        ],
+        'roleHierarchy' => FALSE
     ];
 
     public function loadConfiguration() {
@@ -51,9 +53,23 @@ class SecurityExtension extends CompilerExtension {
             ->setClass('Zycon42\Security\Application\PresenterRequirementsChecker')
             ->setInject(FALSE);
 
+        $roleHierarchyUsed = false;
+        if ($config['roleHierarchy'] != FALSE) {
+            Validators::assert($config['roleHierarchy'], 'array');
+            $roleHierarchyUsed = true;
+
+            $builder->addDefinition($this->prefix('roleHierarchy'))
+                ->setImplementType('Zycon42\Security\Role\IRoleHierarchy')
+                ->setClass('Zycon42\Security\Role\RoleHierarchy')
+                ->addSetup('setHierarchy', [$config['roleHierarchy']])
+                ->setInject(FALSE);
+        }
+
         if ($config['voters'][self::VOTER_ROLE]) {
+            $class = $roleHierarchyUsed ? 'RoleHierarchyVoter' : 'RoleVoter';
+
             $builder->addDefinition($this->prefix('voters.' . self::VOTER_ROLE))
-                ->setClass('Zycon42\Security\Authorization\Voters\RoleVoter')
+                ->setClass('Zycon42\Security\Authorization\Voters\\' . $class)
                 ->addTag(self::TAG_VOTER)
                 ->setInject(FALSE);
         }

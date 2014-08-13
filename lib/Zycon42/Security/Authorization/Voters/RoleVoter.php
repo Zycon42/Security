@@ -39,18 +39,23 @@ class RoleVoter extends Object implements IVoter {
      */
     public function vote(IIdentity $identity, array $attributes, $object) {
         $result = self::VOTE_ABSTAIN;
+        $roles = $this->extractRoles($identity);
         foreach ($attributes as $attribute) {
             if (!$this->supportsAttribute($attribute))
                 continue;
 
             $result = self::VOTE_DENIED;
-            foreach ($identity->getRoles() as $role) {
+            foreach ($roles as $role) {
                 if (self::getRole($role) === $this->getRoleFromAttribute($attribute))
                     return self::VOTE_GRANTED;
             }
         }
 
         return $result;
+    }
+
+    protected function extractRoles(IIdentity $identity) {
+        return $identity->getRoles();
     }
 
     private static function getRole($role) {
