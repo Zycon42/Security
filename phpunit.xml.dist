@@ -1,0 +1,7 @@
+<phpunit colors="true" boostrap="./tests/boostrap.php">
+    <testsuites>
+        <testsuite name="Zycon42 Security Test Suite">
+            <directory>./tests/Security/</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>

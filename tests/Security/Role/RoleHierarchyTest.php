@@ -20,5 +20,15 @@ class RoleHierarchyTest extends \PHPUnit_Framework_TestCase {
 
         $this->assertEquals(['admin', 'user'], $this->roleHierarchy->getReachableRoles(['admin']));
     }
+
+    public function testGetReachableRoles_complicatedHierarchy_valid() {
+        $this->roleHierarchy->setHierarchy([
+            'admin' => ['user', 'manager'],
+            'manager' => ['user', 'client'],
+            'user' => ['guest']
+        ]);
+
+        $this->assertEquals(['admin', 'user', 'manager', 'guest', 'client'],
+            $this->roleHierarchy->getReachableRoles(['admin']));
+    }
 }
- 
