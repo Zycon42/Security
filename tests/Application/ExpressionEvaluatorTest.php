@@ -32,6 +32,10 @@ class ExpressionEvaluatorTest extends \PHPUnit_Framework_TestCase {
         $this->evaluator = new ExpressionEvaluator($this->securityContext, $this->user, $this->language);
     }
 
+    protected function tearDown() {
+        \Mockery::close();
+    }
+
     public function testEvaluate_NoRequestParams_OnlyDefaultParamsInLanguage() {
         $this->user->shouldReceive('getRoles')->andReturn(['test']);
         $identity = \Mockery::mock(IIdentity::class);

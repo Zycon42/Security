@@ -40,7 +40,9 @@ class RoleVoterTest extends \PHPUnit_Framework_TestCase {
     }
 
     public function testVote_badAttributesGiven_abstain() {
-        $identity = \Mockery::mock(IIdentity::class);
+        $identity = \Mockery::mock(IIdentity::class)
+            ->shouldReceive('getRoles')->andReturn(['ADMIN', 'CLIENT'])
+            ->getMock();
 
         $vote = $this->voter->vote($identity, ['admin', null], null);
 

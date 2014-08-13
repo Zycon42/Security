@@ -22,6 +22,10 @@ class PresenterRequirementsCheckerTest extends \PHPUnit_Framework_TestCase {
         $this->checker = new PresenterRequirementsChecker($this->evaluator);
     }
 
+    protected function tearDown() {
+        \Mockery::close();
+    }
+
     /**
      * @expectedException \InvalidArgumentException
      */
@@ -84,11 +88,11 @@ class PresenterRequirementsCheckerTest extends \PHPUnit_Framework_TestCase {
         $request = \Mockery::mock(Request::class);
 
         $this->evaluator->shouldReceive('evaluate')
-            ->with(\Mockery::on(function($expr) { return $expr == 'base'; }), $request)
+            ->with(\Mockery::on(function($expr) { return $expr == 'base'; }), $request)->andReturn(true)
             ->once()->ordered();
 
         $this->evaluator->shouldReceive('evaluate')
-            ->with(\Mockery::on(function($expr) { return $expr == 'derived'; }), $request)
+            ->with(\Mockery::on(function($expr) { return $expr == 'derived'; }), $request)->andReturn(true)
             ->once()->ordered();
 
         $classReflection = ClassType::from(TestDerivedClass::class);
@@ -127,7 +131,7 @@ class TestBaseClass
 /**
  * @Security('derived')
  */
-class TestDerivedClass
+class TestDerivedClass extends TestBaseClass
 {
     /**
      * @Security('method')

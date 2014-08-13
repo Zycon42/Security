@@ -10,4 +10,4 @@ before_script:
   - ./vendor/bin/parallel-lint -e php --exclude vendor .
 
 script:
-  - phpunit
+  - phpunit tests
