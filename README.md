@@ -2,6 +2,7 @@ Security
 ========
 
 [![Build Status](https://travis-ci.org/Zycon42/Security.svg?branch=master)](https://travis-ci.org/Zycon42/Security)
+[![Latest release](https://img.shields.io/packagist/v/zycon42/security.svg)](https://packagist.org/packages/zycon42/security)
 
 Overview
 --------

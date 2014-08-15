@@ -3,7 +3,7 @@
 	"type": "library",
 	"description": "Security extension for Nette framework",
 	"keywords": [],
-	"licence": "MIT",
+	"licence": ["MIT"],
 	"authors": [
 		{
 			"name": "Jan Dušek",

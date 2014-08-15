@@ -69,4 +69,4 @@ class RoleVoter extends Object implements IVoter {
             return $role->getRoleId();
         return str_replace($this->prefix, '', $role);
     }
-} 
+}
