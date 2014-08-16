@@ -9,6 +9,7 @@ use Symfony\Component\ExpressionLanguage\Expression;
 use Zycon42\Security\Application\ExpressionEvaluator;
 use Zycon42\Security\Authorization\ExpressionLanguage;
 use Zycon42\Security\ISecurityContext;
+use Zycon42\Security\Role\RoleHierarchy;
 
 class ExpressionEvaluatorTest extends \PHPUnit_Framework_TestCase {
 
@@ -36,7 +37,7 @@ class ExpressionEvaluatorTest extends \PHPUnit_Framework_TestCase {
         \Mockery::close();
     }
 
-    public function testEvaluate_NoRequestParams_OnlyDefaultParamsInLanguage() {
+    public function testEvaluate_noRequestParams_onlyDefaultParamsInLanguage() {
         $this->user->shouldReceive('getRoles')->andReturn(['test']);
         $identity = \Mockery::mock(IIdentity::class);
         $this->user->shouldReceive('getIdentity')->andReturn($identity);
@@ -54,6 +55,30 @@ class ExpressionEvaluatorTest extends \PHPUnit_Framework_TestCase {
                 'roles' => ['test'],
                 'securityContext' => $this->securityContext
             ])->once();
+
+        $this->evaluator->evaluate($expr, $request);
+    }
+
+    public function testEvaluate_roleHierarchyInvolved_variablesContainsProperRoles() {
+        $roleHierarchy = \Mockery::mock(RoleHierarchy::class)
+            ->shouldReceive('getReachableRoles')->with(['ADMIN'])
+            ->andReturn(['ADMIN', 'MANAGER', 'USER'])->getMock();
+
+        $this->evaluator = new ExpressionEvaluator($this->securityContext, $this->user, $this->language, $roleHierarchy);
+
+        $this->user->shouldReceive('getRoles')->andReturn(['ADMIN']);
+        $identity = \Mockery::mock(IIdentity::class);
+        $this->user->shouldReceive('getIdentity')->andReturn($identity);
+
+        $request = \Mockery::mock(Request::class)->shouldReceive('getParameters')
+            ->andReturn([])->getMock();
+
+        $expr = \Mockery::mock(Expression::class);
+
+        $this->language->shouldReceive('evaluate')
+            ->with($expr, \Mockery::on(function ($variables) {
+                return $variables['roles'] === ['ADMIN', 'MANAGER', 'USER'];
+            }))->once();
 
         $this->evaluator->evaluate($expr, $request);
     }

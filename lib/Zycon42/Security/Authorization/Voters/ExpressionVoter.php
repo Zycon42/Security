@@ -9,6 +9,7 @@ use Nette\Security\IRole;
 use Nette\Security\User;
 use Symfony\Component\ExpressionLanguage\Expression;
 use Zycon42\Security\Authorization\ExpressionLanguage;
+use Zycon42\Security\Role\RoleHierarchy;
 
 class ExpressionVoter extends Object implements IVoter {
 
@@ -18,9 +19,13 @@ class ExpressionVoter extends Object implements IVoter {
     /** @var User */
     private $user;
 
-    public function __construct(ExpressionLanguage $language, User $user) {
+    /** @var RoleHierarchy */
+    private $roleHierarchy;
+
+    public function __construct(ExpressionLanguage $language, User $user, RoleHierarchy $roleHierarchy = null) {
         $this->language = $language;
         $this->user = $user;
+        $this->roleHierarchy = $roleHierarchy;
     }
 
     /**
@@ -67,7 +72,13 @@ class ExpressionVoter extends Object implements IVoter {
             'user' => $this->user,
             'object' => $object,
             'roles' => array_map(function ($role) { return $role instanceof IRole ? $role->getRoleId() : $role; },
-                $identity->getRoles())
+                $this->extractRoles($identity))
         ];
+    }
+
+    private function extractRoles(IIdentity $identity) {
+        if ($this->roleHierarchy)
+            return $this->roleHierarchy->getReachableRoles($identity->getRoles());
+        return $identity->getRoles();
     }
 }

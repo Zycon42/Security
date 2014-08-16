@@ -8,6 +8,7 @@ use Symfony\Component\ExpressionLanguage\Expression;
 use Zycon42\Security\Authorization\ExpressionLanguage;
 use Zycon42\Security\Authorization\Voters\ExpressionVoter;
 use Zycon42\Security\Authorization\Voters\IVoter;
+use Zycon42\Security\Role\RoleHierarchy;
 
 class ExpressionVoterTest extends \PHPUnit_Framework_TestCase {
 
@@ -20,6 +21,7 @@ class ExpressionVoterTest extends \PHPUnit_Framework_TestCase {
     /** @var \Mockery\MockInterface */
     private $user;
 
+    /** @var \Mockery\MockInterface */
     private $identity;
 
     protected function setUp() {
@@ -68,6 +70,29 @@ class ExpressionVoterTest extends \PHPUnit_Framework_TestCase {
             ])->once();
 
         $this->voter->vote($this->identity, [$expr], $object);
+    }
+
+    public function testVote_roleHierarchyInvolved_languageVariablesContainsProperRoles() {
+        $roleHierarchy = \Mockery::mock(RoleHierarchy::class)
+            ->shouldReceive('getReachableRoles')->with(['ADMIN'])
+            ->andReturn(['ADMIN', 'MANAGER', 'USER'])->getMock();
+
+        $voter = new ExpressionVoter($this->expressionLanguage, $this->user, $roleHierarchy);
+
+        $this->identity->shouldReceive('getRoles')->andReturn(['ADMIN'])->getMock();
+
+        $expr = \Mockery::mock(Expression::class);
+
+        $object = new \stdClass();
+        $this->expressionLanguage->shouldReceive('evaluate')
+            ->with($expr, [
+                'identity' => $this->identity,
+                'user' => $this->user,
+                'object' => $object,
+                'roles' => ['ADMIN', 'MANAGER', 'USER']
+            ])->once();
+
+        $voter->vote($this->identity, [$expr], $object);
     }
 
     public function testVote_expressionReturnsTrue_grant() {
