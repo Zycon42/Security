@@ -30,7 +30,18 @@ class SecurityContextTest extends \PHPUnit_Framework_TestCase {
     }
 
     public function testIsGranted_userHasNullIdentity_GuestIdentityPassedToAccessDecisionManager() {
+        $this->user->shouldReceive('isLoggedIn')->andReturn(true);
         $this->user->shouldReceive('getIdentity')->andReturn(null);
+
+        $this->accessDecisionManager->shouldReceive('decide')
+            ->with(\Mockery::type(GuestIdentity::class), \Mockery::any(), \Mockery::any())
+            ->once();
+
+        $this->securityContext->isGranted('SHOW');
+    }
+
+    public function testIsGranted_userLoggedOut_GuestIdentityPassedToAccessDecisionManager() {
+        $this->user->shouldReceive('isLoggedIn')->andReturn(false);
 
         $this->accessDecisionManager->shouldReceive('decide')
             ->with(\Mockery::type(GuestIdentity::class), \Mockery::any(), \Mockery::any())
@@ -41,6 +52,7 @@ class SecurityContextTest extends \PHPUnit_Framework_TestCase {
 
     public function testIsGranted_attributesIsArray_paramsPassedToDecisionManager() {
         $identity = \Mockery::mock(IIdentity::class);
+        $this->user->shouldReceive('isLoggedIn')->andReturn(true);
         $this->user->shouldReceive('getIdentity')->andReturn($identity);
 
         $attributes = ['SHOW', 'EDIT'];
@@ -54,6 +66,7 @@ class SecurityContextTest extends \PHPUnit_Framework_TestCase {
 
     public function testIsGranted_attributesIsNotArray_attributesConvertedToArray() {
         $identity = \Mockery::mock(IIdentity::class);
+        $this->user->shouldReceive('isLoggedIn')->andReturn(true);
         $this->user->shouldReceive('getIdentity')->andReturn($identity);
 
         $this->accessDecisionManager->shouldReceive('decide')
@@ -64,6 +77,7 @@ class SecurityContextTest extends \PHPUnit_Framework_TestCase {
 
     public function testIsGranted_accessDecisionResult_returned() {
         $identity = \Mockery::mock(IIdentity::class);
+        $this->user->shouldReceive('isLoggedIn')->andReturn(true);
         $this->user->shouldReceive('getIdentity')->andReturn($identity);
 
         $this->accessDecisionManager->shouldReceive('decide')
