@@ -31,8 +31,7 @@ class SecurityContext extends Object implements ISecurityContext {
         if (!is_array($attributes))
             $attributes = array($attributes);
 
-        $identity = $this->user->getIdentity();
-        if ($identity === null) {
+        if ((!$this->user->isLoggedIn() || ($identity = $this->user->getIdentity()) === null)) {
             $identity = new GuestIdentity();
         }
 
